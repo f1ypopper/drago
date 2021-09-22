@@ -56,7 +56,7 @@ class IfNode:
 
 	def execute(self, context):
 		output = ''
-		if self.is_truthy(context):
+		if self.is_true(context):
 			for node in self.if_block:
 				output+=node.execute(context)
 		elif self.else_block :
@@ -64,7 +64,7 @@ class IfNode:
 				output+=node.execute(context)
 		return output
 
-	def is_truthy(self, context):
+	def is_true(self, context):
 		if len(self.condition) == 1:
 			variable = self.condition[0].strip()
 			if variable not in context:
@@ -90,8 +90,3 @@ class IfNode:
 				return left_operand_val >= right_operand_val
 			else:
 				raise OperatorNotFound(f'Operator Not Found: {operator}')	
-
-def check_exists(key, context):
-	if key in context:
-		return True
-	return False	
