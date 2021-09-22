@@ -27,7 +27,10 @@ class Parser:
 	def handle_block(self):
 		if self.tokens[self.current].content.strip()[:3] == 'for':
 			return self.handle_for()
-	
+
+		if self.tokens[self.current].content.strip()[:2] == 'if':
+			return self.handle_if()
+
 	def handle_for(self):
 		statement = self.tokens[self.current].content.strip().split()
 		local_variable = statement[1]
@@ -48,29 +51,31 @@ class Parser:
 
 	def handle_if(self):
 		statement = self.tokens[self.current].content.strip().split()
-		condition = statement[1]
+		condition = statement[1:]
 		self.current+=1
 		if_block = []
 		else_block = []
 		block_token = self.tokens[self.current]
 		while  block_token.content.strip() != 'endif':
 			if block_token.content.strip() == 'else':
-				if block_token.token_type == TEXT:
-					if_block.append(self.handle_text())
-				elif block_token.token_type == VAR:
-					if_block.append(self.handle_var())
-				elif block_token.token_type == BLOCK:
-					if_block.append(self.handle_block())
-			else:
+				self.current+=1
+				block_token = self.tokens[self.current]
 				if block_token.token_type == TEXT:
 					else_block.append(self.handle_text())
 				elif block_token.token_type == VAR:
 					else_block.append(self.handle_var())
 				elif block_token.token_type == BLOCK:
 					else_block.append(self.handle_block())
+			else:
+				if block_token.token_type == TEXT:
+					if_block.append(self.handle_text())
+				elif block_token.token_type == VAR:
+					if_block.append(self.handle_var())
+				elif block_token.token_type == BLOCK:
+					if_block.append(self.handle_block())
 	
-				self.current+=1
-				block_token = self.tokens[self.current]
+			self.current+=1
+			block_token = self.tokens[self.current]
 		return IfNode(condition, if_block, else_block) 
 
 	def at_end(self):

@@ -2,11 +2,15 @@ class VariableNotFound(Exception):
 	def __init__(self, message:str) -> None:
 		self.message = message
 		super().__init__(self.message)	
+
 class NotIterable(Exception):
 	def __init__(self, message:str) -> None:
 		self.message = message
 		super().__init__(self.message)	
 
+class OperatorNotFound(Exception):
+	def __init__(self,message:str) -> None:
+		super().__init__(message)
 
 class TextNode:
 	def __init__(self, text):
@@ -61,7 +65,33 @@ class IfNode:
 		return output
 
 	def is_truthy(self, context):
-		if context.get(self.condition.strip()):
-			return True
-		return False
+		if len(self.condition) == 1:
+			variable = self.condition[0].strip()
+			if variable not in context:
+				raise VariableNotFound()
+			if context[variable]:
+				return True
+			return False
+		elif len(self.condition) == 3:
+			left_operand, operator, right_operand = self.condition
+			left_operand_val = context.get(left_operand)
+			right_operand_val = context.get(right_operand)
+			if operator == '==':
+				return left_operand_val == right_operand_val
+			elif operator == '!=':
+				return left_operand_val != right_operand_val
+			elif operator == '<':
+				return left_operand_val < right_operand_val
+			elif operator == '>':
+				return left_operand_val > right_operand_val
+			elif operator == '<=':
+				return left_operand_val <= right_operand_val
+			elif operator == '>=':
+				return left_operand_val >= right_operand_val
+			else:
+				raise OperatorNotFound(f'Operator Not Found: {operator}')	
 
+def check_exists(key, context):
+	if key in context:
+		return True
+	return False	
